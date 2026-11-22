@@ -36,6 +36,14 @@ public class ProviderConfig {
     }
 
     @Bean
+    RestClient.Builder nexconnRestClientBuilder() {
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(Duration.ofSeconds(5));
+        factory.setReadTimeout(Duration.ofSeconds(10));
+        return RestClient.builder().requestFactory(factory);
+    }
+
+    @Bean
     CacheManager cacheManager() {
         CaffeineCacheManager manager = new CaffeineCacheManager("discovery");
         manager.setCaffeine(Caffeine.newBuilder().maximumSize(200).expireAfterWrite(Duration.ofMinutes(5)));
