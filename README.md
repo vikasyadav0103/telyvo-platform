@@ -20,7 +20,7 @@ The three integrations must perform real operations in the final demo. Never fab
 - Frontend: React, Vite, Material UI
 - Decision records: browser localStorage with Markdown export (no server-side persistence yet)
 - Integrations: SerpApi, You.com, Nexconn
-- Testing: JUnit 5, Mockito, WireMock; frontend smoke tests where time permits
+- Testing: JUnit 5, Mockito and Spring MockRestServiceServer
 - Runtime: Docker Compose with Spring Boot API and Nginx-served React build
 
 ## Repository layout
