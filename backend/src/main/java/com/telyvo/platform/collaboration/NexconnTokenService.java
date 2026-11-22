@@ -25,8 +25,8 @@ public class NexconnTokenService {
         this.client = builder.build();
     }
 
-    public String issueToken() {
-        if (blank(properties.appKey()) || blank(properties.appSecret()) || blank(properties.userId())) {
+    public String issueToken(String userId, String userName) {
+        if (blank(properties.appKey()) || blank(properties.appSecret()) || blank(userId)) {
             throw new ChatIntegrationException(HttpStatus.SERVICE_UNAVAILABLE, "NEXCONN_NOT_CONFIGURED",
                     "Nexconn App Key, App Secret and User ID must be configured on the backend.");
         }
@@ -43,7 +43,7 @@ public class NexconnTokenService {
                     .header("Nonce", nonce)
                     .header("Timestamp", timestamp)
                     .header("Signature", signature)
-                    .body(new TokenRequest(properties.userId(), properties.userName(), ""))
+                    .body(new TokenRequest(userId, userName, ""))
                     .retrieve().body(JsonNode.class);
 
             if (response == null || response.path("code").asInt(-1) != 0) {
