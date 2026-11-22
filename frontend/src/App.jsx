@@ -13,7 +13,7 @@ import remarkGfm from 'remark-gfm';
 import rehypeSanitize from 'rehype-sanitize';
 
 function linkResearchCitations(markdown = '') {
-  return markdown.replace(/\\[\\[([\\d\\s,]+)\\]\\]/g, (_, numbers) => numbers.split(',').map((number) => number.trim()).filter(Boolean).map((number) => `[${number}](#research-source-${number})`).join(', '));
+  return markdown.replace(/\[\[([\d\s,]+)\]\]/g, (_, numbers) => numbers.split(',').map((number) => number.trim()).filter(Boolean).map((number) => `[${number}](#research-source-${number})`).join(', '));
 }
 
 const stages = [
