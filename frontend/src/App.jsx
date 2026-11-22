@@ -44,6 +44,14 @@ export default function App() {
       .catch(() => setProviders([]));
   }, []);
 
+  function changeQuery(value) {
+    setQuery(value);
+    setResults([]);
+    setError('');
+    setResearch(null);
+    setResearchError('');
+  }
+
   async function discover(event) {
     event.preventDefault();
     const value = query.trim();
@@ -96,10 +104,10 @@ export default function App() {
             <p className="hero-copy">Discover what is changing. Research what matters. Discuss the evidence with your team.</p>
             <form className="search-card" onSubmit={discover}>
               <div className="search-label">WHAT ARE YOU DECIDING?</div>
-              <div className="search-row"><SearchRoundedIcon className="search-icon" /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="e.g. Spring Boot vs Go for microservices" aria-label="Technology decision question" maxLength={240} /><button type="submit" disabled={!query.trim() || loading}>{loading ? 'Searching…' : 'Discover'} <ArrowForwardRoundedIcon /></button></div>
+              <div className="search-row"><SearchRoundedIcon className="search-icon" /><input value={query} onChange={(event) => changeQuery(event.target.value)} placeholder="e.g. Spring Boot vs Go for microservices" aria-label="Technology decision question" maxLength={240} /><button type="submit" disabled={!query.trim() || loading}>{loading ? 'Searching…' : 'Discover'} <ArrowForwardRoundedIcon /></button></div>
               <div className="search-foot"><span>Live web discovery · SerpApi</span><span>{query.length}/240</span></div>
             </form>
-            <div className="suggestion-row"><span>TRY:</span><button type="button" onClick={() => setQuery('Spring Boot vs Go for microservices')}>Spring Boot vs Go</button><button type="button" onClick={() => setQuery('PostgreSQL vs MongoDB for SaaS')}>PostgreSQL vs MongoDB</button><button type="button" onClick={() => setQuery('Kubernetes vs serverless in 2026')}>Kubernetes vs serverless</button></div>
+            <div className="suggestion-row"><span>TRY:</span><button type="button" onClick={() => changeQuery('Spring Boot vs Go for microservices')}>Spring Boot vs Go</button><button type="button" onClick={() => changeQuery('PostgreSQL vs MongoDB for SaaS')}>PostgreSQL vs MongoDB</button><button type="button" onClick={() => changeQuery('Kubernetes vs serverless in 2026')}>Kubernetes vs serverless</button></div>
           </section>
 
           {(error || results.length > 0) && <section className="results-section" aria-live="polite"><div className="section-heading"><div><span className="section-kicker">DISCOVERY RESULTS · SERPAPI</span><h2>{results.length} sources found</h2></div><span className="section-note">Provider-returned results</span></div>{error && <p className="error-message" role="alert">{error}</p>}<div className="results-grid">{results.map((item, index) => <article className="result-card" key={item.url || index}><span className="result-source">{item.source || 'WEB RESULT'}{item.publishedAt ? ' · ' + item.publishedAt : ''}</span><h3><a href={item.url} target="_blank" rel="noreferrer">{item.title}</a></h3><p>{item.snippet}</p><a className="result-link" href={item.url} target="_blank" rel="noreferrer">Open source <ArrowForwardRoundedIcon /></a></article>)}</div>{query.trim() && <button className="research-button" onClick={runResearch} disabled={researching}>{researching ? 'Researching with You.com…' : 'Synthesize evidence with You.com'} <AutoAwesomeRoundedIcon /></button>}</section>}
