@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
@@ -56,6 +57,13 @@ public class DiscoveryService {
             return new DiscoveryResponse(query, List.copyOf(results), Instant.now());
         } catch (DiscoveryException ex) {
             throw ex;
+        } catch (RestClientResponseException ex) {
+            if (ex.getStatusCode().value() == 429) {
+                throw new DiscoveryException(HttpStatus.TOO_MANY_REQUESTS, "DISCOVERY_RATE_LIMITED",
+                        "SerpApi rate limit reached. Wait before trying another search.");
+            }
+            throw new DiscoveryException(HttpStatus.BAD_GATEWAY, "DISCOVERY_PROVIDER_ERROR",
+                    "SerpApi rejected or could not complete the search request. Check the API key and provider status.");
         } catch (RestClientException ex) {
             throw new DiscoveryException(HttpStatus.BAD_GATEWAY, "DISCOVERY_PROVIDER_UNAVAILABLE",
                     "Search provider is temporarily unavailable. Please try again.");
