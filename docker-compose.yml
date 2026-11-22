@@ -21,7 +21,7 @@ services:
       NEXCONN_PEER_USER_ID: ${NEXCONN_PEER_USER_ID:-}
       NEXCONN_PEER_USER_NAME: ${NEXCONN_PEER_USER_NAME:-TELYVO Teammate}
       NEXCONN_GROUP_ID: ${NEXCONN_GROUP_ID:-}
-      NEXCONN_DEMO_MODE: ${NEXCONN_DEMO_MODE:-true}
+      NEXCONN_DEMO_MODE: ${NEXCONN_DEMO_MODE:-false}
     expose:
       - "8080"
     healthcheck:
