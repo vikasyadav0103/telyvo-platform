@@ -63,3 +63,11 @@ Provider setup instructions and the five-hour build sequence are in [docs/SETUP.
 "Should we choose Java Spring Boot or Go for a new microservices platform?"
 
 TELYVO discovers current resources, generates a cited comparison, then opens a Nexconn discussion for the team to review the evidence.
+
+## Live integrations
+
+- **Discover:** SerpApi Google Search, server-side API key, normalized source cards and five-minute in-memory cache.
+- **Research:** You.com Research API with provider-returned answer and citations.
+- **Discuss:** Nexconn Web Chat SDK group channel for real-time team messages.
+
+See [docs/SETUP.md](docs/SETUP.md) for provider credentials, local setup and the demo path. All provider credentials are supplied through backend environment variables; the Nexconn App Secret is never exposed to the browser.
