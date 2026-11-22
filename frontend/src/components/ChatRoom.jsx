@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { GroupChannel, MessageHandler, NCEngine, SendTextMessageParams } from '@nexconn/chat';
+import { ConnectionStatus, ConnectionStatusHandler, GroupChannel, MessageHandler, NCEngine, SendTextMessageParams } from '@nexconn/chat';
 import SendRoundedIcon from '@mui/icons-material/SendRounded';
 
 export default function ChatRoom() {
@@ -21,6 +21,14 @@ export default function ChatRoom() {
         if (!active) return;
         setConfig(data);
         NCEngine.initialize({ appKey: data.appKey });
+        NCEngine.addConnectionStatusHandler('telyvo-connection-handler', new ConnectionStatusHandler({
+          onConnectionStatusChanged({ status, code }) {
+            if (!active) return;
+            if (status === ConnectionStatus.CONNECTED) setStatus(`Connected as ${data.userId}`);
+            else if (status === ConnectionStatus.CONNECTING) setStatus('Connecting to Nexconn…');
+            else if (status === ConnectionStatus.DISCONNECTED || status === ConnectionStatus.SUSPENDED) setStatus(`Chat disconnected (code ${code})`);
+          }
+        }));
         NCEngine.addMessageHandler('telyvo-message-handler', new MessageHandler({
           onMessageReceived({ messages: incoming }) {
             if (!active) return;
