@@ -17,13 +17,12 @@ Set `YOU_API_KEY`. The backend uses `POST https://api.you.com/v1/research`, send
 ### Nexconn Chat SDK
 1. Create a Nexconn application in the Developer Console.
 2. Use the development App Key.
-3. Obtain a user access token through Nexconn's documented server-side flow. For this MVP, supply the resulting demo user's token as `NEXCONN_USER_TOKEN` in the backend environment.
-4. Set `NEXCONN_USER_ID` to the exact user ID bound to that token.
-5. Create a group channel using Nexconn's console or SDK and add this user (and the second demo user); set its ID as `NEXCONN_GROUP_ID`.
-6. Set `NEXCONN_APP_KEY` to the same App Key used to create the token.
-7. Never put the App Secret in React, Vite variables or the browser bundle.
+3. Set `NEXCONN_APP_SECRET` on the backend only. Never put the App Secret in React, Vite variables or the browser bundle.
+4. Set `NEXCONN_API_BASE_URL` to the regional API host shown in your Nexconn Console (the example default is Singapore).
+5. Set `NEXCONN_USER_ID` to a stable user ID for the demo participant.
+6. Create a group channel using Nexconn's console or SDK, add this user (and the second demo user), and set its ID as `NEXCONN_GROUP_ID`.
 
-The backend exposes `GET /api/v1/chat/config` to return the browser-safe App Key, user access token, user ID and group ID at runtime. This endpoint is a demo bootstrap endpoint, not a production identity system. In production, protect it with application authentication and mint short-lived user tokens through Nexconn's signed server API.
+The backend now calls Nexconn's signed `POST /v4/auth/access-token/issue` endpoint at runtime and returns the resulting browser-use access token with the App Key and room details. It signs each request server-side using the App Secret; the secret never leaves the backend. The current bootstrap route uses a configured demo user ID; production must bind the requested user ID to an authenticated application session and enforce group membership.
 
 ## Run locally
 Terminal 1:
