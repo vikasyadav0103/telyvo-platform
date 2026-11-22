@@ -2,6 +2,7 @@ package com.telyvo.platform.discovery;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -18,7 +19,7 @@ public class DiscoveryService {
     private final RestClient restClient;
     private final DiscoveryProperties properties;
 
-    public DiscoveryService(RestClient.Builder builder, DiscoveryProperties properties) {
+    public DiscoveryService(@Qualifier("restClientBuilder") RestClient.Builder builder, DiscoveryProperties properties) {
         this.restClient = builder.build();
         this.properties = properties;
     }
