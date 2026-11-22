@@ -1,0 +1,44 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      SERVER_PORT: 8080
+      SERPAPI_KEY: ${SERPAPI_KEY:-}
+      SERPAPI_BASE_URL: ${SERPAPI_BASE_URL:-https://serpapi.com/search}
+      SERPAPI_TIMEOUT_SECONDS: ${SERPAPI_TIMEOUT_SECONDS:-8}
+      SERPAPI_MAX_RESULTS: ${SERPAPI_MAX_RESULTS:-8}
+      YOU_API_KEY: ${YOU_API_KEY:-}
+      YOU_API_BASE_URL: ${YOU_API_BASE_URL:-https://api.you.com/v1/research}
+      YOU_API_TIMEOUT_SECONDS: ${YOU_API_TIMEOUT_SECONDS:-60}
+      YOU_RESEARCH_EFFORT: ${YOU_RESEARCH_EFFORT:-lite}
+      NEXCONN_APP_KEY: ${NEXCONN_APP_KEY:-}
+      NEXCONN_APP_SECRET: ${NEXCONN_APP_SECRET:-}
+      NEXCONN_API_BASE_URL: ${NEXCONN_API_BASE_URL:-https://api.sg-light-api.com}
+      NEXCONN_USER_ID: ${NEXCONN_USER_ID:-}
+      NEXCONN_USER_NAME: ${NEXCONN_USER_NAME:-TELYVO Engineer}
+      NEXCONN_PEER_USER_ID: ${NEXCONN_PEER_USER_ID:-}
+      NEXCONN_PEER_USER_NAME: ${NEXCONN_PEER_USER_NAME:-TELYVO Teammate}
+      NEXCONN_GROUP_ID: ${NEXCONN_GROUP_ID:-}
+    expose:
+      - "8080"
+    restart: unless-stopped
+    networks:
+      - telyvo
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    depends_on:
+      - backend
+    ports:
+      - "${APP_PORT:-8088}:80"
+    restart: unless-stopped
+    networks:
+      - telyvo
+
+networks:
+  telyvo:
+    driver: bridge
