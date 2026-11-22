@@ -10,12 +10,13 @@ export default function ChatRoom() {
   const [sending, setSending] = useState(false);
   const channelRef = useRef(null);
   const seenRef = useRef(new Set());
+  const participant = new URLSearchParams(window.location.search).get('participant') === 'peer' ? 'peer' : 'primary';
 
   useEffect(() => {
     let active = true;
     async function connect() {
       try {
-        const response = await fetch('/api/v1/chat/config');
+        const response = await fetch('/api/v1/chat/config?participant=' + participant);
         const data = await response.json();
         if (!response.ok) throw new Error(data.message || 'Nexconn is not configured.');
         if (!active) return;
@@ -80,7 +81,7 @@ export default function ChatRoom() {
 
   return (
     <section className="chat-section" id="discuss">
-      <div className="section-heading"><div><span className="section-kicker">TEAM COLLABORATION · NEXCONN</span><h2>Discuss the evidence.</h2></div><span className="section-note">{status}</span></div>
+      <div className="section-heading"><div><span className="section-kicker">TEAM COLLABORATION · NEXCONN</span><h2>Discuss the evidence.</h2></div><div className="chat-heading-actions"><span className="section-note">{status}</span><a href={participant === "peer" ? "?participant=primary" : "?participant=peer"} target="_blank" rel="noreferrer">Open {participant === "peer" ? "primary" : "peer"} session ↗</a></div></div>
       <div className="chat-panel">
         <div className="chat-feed" aria-live="polite">
           {messages.length === 0 && <p className="chat-empty">No messages yet. Share the decision context with your team.</p>}
