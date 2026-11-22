@@ -24,6 +24,12 @@ services:
       NEXCONN_DEMO_MODE: ${NEXCONN_DEMO_MODE:-true}
     expose:
       - "8080"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 40s
+      retries: 3
     restart: unless-stopped
     networks:
       - telyvo
@@ -33,7 +39,8 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     ports:
       - "${APP_PORT:-8088}:80"
     restart: unless-stopped
