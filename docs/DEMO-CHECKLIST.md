@@ -9,6 +9,7 @@
 - [ ] Two distinct Nexconn user IDs are configured.
 - [ ] A Nexconn group exists and contains both users.
 - [ ] Backend and frontend start without errors.
+- [ ] Docker Compose stack reports backend healthy and frontend available on port 8088 (if demonstrating containers).
 - [ ] `mvn test` and `npm run build` pass.
 
 ## Live demo sequence
@@ -27,6 +28,7 @@
 - [ ] Missing Nexconn credentials/group prevents connection with a clear status.
 - [ ] Disconnected chat disables message composition.
 - [ ] No provider failure is replaced by fabricated results or citations.
+- [ ] Research rate limit (3/min/IP) and discovery limit (20/min/IP) return clear 429 responses.
 
 ## Demo safety
-Do not display `.env`, API keys, App Secret, access tokens, or raw provider request headers during screen sharing. The fixed primary/peer identities are demo-only and must not be used as production authentication.
+Do not display `.env`, API keys, App Secret, access tokens, or raw provider request headers during screen sharing. The fixed primary/peer identities are demo-only and must not be used as production authentication. Provider limits are in-memory and are not a substitute for a distributed production rate limiter.
