@@ -35,7 +35,7 @@ infra/         Local infrastructure and Docker assets
 
 ## Quick start
 
-The application code is being added in stages. Start by copying `.env.example` to `.env` and filling in credentials locally. **Never commit `.env`, API keys, access tokens, or SDK secrets.**
+The application code is committed on `feature/initial-app-scaffold`. Start by copying `.env.example` to `.env` and filling in credentials locally. **Never commit `.env`, API keys, access tokens, or SDK secrets.**
 
 Provider setup instructions and the five-hour build sequence are in [docs/SETUP.md](docs/SETUP.md). Credit allocation is in [docs/SERPAPI-CREDITS.md](docs/SERPAPI-CREDITS.md).
 
@@ -54,9 +54,12 @@ Provider setup instructions and the five-hour build sequence are in [docs/SETUP.
 - [ ] SerpApi credentials and credit redemption verified
 - [ ] You.com API access verified
 - [ ] Nexconn SDK credentials and minimal chat flow verified
-- [ ] Backend discovery and research endpoints
-- [ ] Frontend end-to-end demo
-- [ ] Negative-path checks and final rehearsal
+- [x] Backend discovery and research endpoints implemented
+- [x] Frontend discovery, research and chat workflow implemented
+- [x] Mocked provider tests for discovery, research and Nexconn token issuance
+- [ ] Provider credentials and live connectivity verified
+- [ ] Local Maven tests and frontend production build verified
+- [ ] Two-user Nexconn room smoke test and final rehearsal
 
 ## Demo scenario
 
