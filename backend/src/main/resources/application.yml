@@ -15,7 +15,7 @@ telyvo:
   research:
     api-key: ${YOU_API_KEY:}
     base-url: ${YOU_API_BASE_URL:https://api.you.com/v1/research}
-    timeout-seconds: ${YOU_API_TIMEOUT_SECONDS:60}
+    timeout-seconds: ${YOU_API_TIMEOUT_SECONDS:330}
     effort: ${YOU_RESEARCH_EFFORT:lite}
   nexconn:
     app-key: ${NEXCONN_APP_KEY:}
