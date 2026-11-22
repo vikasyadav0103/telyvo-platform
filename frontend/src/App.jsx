@@ -7,6 +7,7 @@ import TerminalRoundedIcon from '@mui/icons-material/TerminalRounded';
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 import HubRoundedIcon from '@mui/icons-material/HubRounded';
 import ChatRoom from './components/ChatRoom';
+import DecisionLog from './components/DecisionLog';
 
 const stages = [
   { number: '01', title: 'Discover', description: 'Find current engineering resources.', icon: <TravelExploreRoundedIcon />, tag: 'SERPAPI' },
@@ -100,6 +101,7 @@ export default function App() {
 
           <section className="workflow-section"><div className="section-heading"><div><span className="section-kicker">THE WORKFLOW</span><h2>From question to decision.</h2></div><span className="section-note">Three connected stages</span></div><div className="workflow-grid">{stages.map((stage) => <article className="workflow-card" key={stage.number} id={stage.title.toLowerCase()}><div className="card-top"><span>{stage.number} / 03</span><span className="card-icon">{stage.icon}</span></div><h3>{stage.title}</h3><p>{stage.description}</p><span className="integration-tag">{stage.tag}</span></article>)}</div></section>
           <section className="demo-callout"><div className="demo-icon"><TerminalRoundedIcon /></div><div><span className="section-kicker">DECISION WORKSPACE</span><h3>Move from search results to a team decision.</h3><p>Discover and research are connected to live providers. Discuss uses the Nexconn Chat SDK.</p></div><span className="demo-arrow"><ArrowForwardRoundedIcon /></span></section>
+          {research && <DecisionLog query={query} research={research} />}
           <ChatRoom />
           <footer className="footer"><span>TELYVO <span className="brand-period">.</span> Evidence over assumption.</span><span>Built for engineering teams</span></footer>
         </div>
