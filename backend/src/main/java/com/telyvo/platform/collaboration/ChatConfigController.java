@@ -8,16 +8,20 @@ import org.springframework.web.server.ResponseStatusException;
 @RequestMapping("/api/v1/chat")
 public class ChatConfigController {
     private final ChatProperties properties;
-    public ChatConfigController(ChatProperties properties) { this.properties = properties; }
+    private final NexconnTokenService tokenService;
+
+    public ChatConfigController(ChatProperties properties, NexconnTokenService tokenService) {
+        this.properties = properties;
+        this.tokenService = tokenService;
+    }
 
     @GetMapping("/config")
     public ChatConfig config() {
-        if (blank(properties.appKey()) || blank(properties.userToken())
-                || blank(properties.userId()) || blank(properties.groupId())) {
+        if (blank(properties.appKey()) || blank(properties.userId()) || blank(properties.groupId())) {
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
-                    "Nexconn demo credentials are not configured on the server.");
+                    "Nexconn App Key, User ID and Group ID must be configured on the server.");
         }
-        return new ChatConfig(properties.appKey(), properties.userToken(),
+        return new ChatConfig(properties.appKey(), tokenService.issueToken(),
                 properties.userId(), properties.groupId());
     }
 
