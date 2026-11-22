@@ -33,7 +33,7 @@ class NexconnTokenServiceTest {
                 new ChatProperties("demo-app-key", "demo-app-secret", "https://api.sg-light-api.com",
                         "demo-user", "team-room", "TELYVO Engineer", "peer-user", "TELYVO Teammate"), builder);
 
-        assertThat(service.issueToken()).isEqualTo("issued-demo-token");
+        assertThat(service.issueToken("demo-user", "TELYVO Engineer")).isEqualTo("issued-demo-token");
         server.verify();
     }
 }
