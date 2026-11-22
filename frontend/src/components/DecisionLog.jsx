@@ -106,7 +106,7 @@ export default function DecisionLog({ query, research }) {
   }
 
   return (
-    <section className="decision-log" aria-labelledby="decision-log-title">
+    <section className="decision-log" id="decide" aria-labelledby="decision-log-title">
       <div className="section-heading">
         <div><span className="section-kicker">DECISION GOVERNANCE</span><h2 id="decision-log-title">Save the decision.</h2></div>
         <span className="section-note">{records.length}/50 local records</span>
