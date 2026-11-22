@@ -9,9 +9,19 @@ server:
 telyvo:
   discovery:
     serp-api-key: ${SERPAPI_KEY:}
-    base-url: ${SERPAPI_BASE_URL:https://serpapi.com/search.json}
+    base-url: ${SERPAPI_BASE_URL:https://serpapi.com/search}
     timeout-seconds: ${SERPAPI_TIMEOUT_SECONDS:8}
     max-results: ${SERPAPI_MAX_RESULTS:8}
+  research:
+    api-key: ${YOU_API_KEY:}
+    base-url: ${YOU_API_BASE_URL:https://api.you.com/v1/research}
+    timeout-seconds: ${YOU_API_TIMEOUT_SECONDS:60}
+    effort: ${YOU_RESEARCH_EFFORT:lite}
+  nexconn:
+    app-key: ${NEXCONN_APP_KEY:}
+    user-token: ${NEXCONN_USER_TOKEN:}
+    user-id: ${NEXCONN_USER_ID:}
+    group-id: ${NEXCONN_GROUP_ID:}
 
 management:
   endpoints:
