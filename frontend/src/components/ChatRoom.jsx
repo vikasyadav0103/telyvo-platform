@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ConnectionStatus, ConnectionStatusHandler, GroupChannel, MessageHandler, NCEngine, SendTextMessageParams } from '@nexconn/chat';
+import { BaseChannel, ConnectionStatus, ConnectionStatusHandler, DirectChannel, GroupChannel, GroupChannelIdentifier, LogLevel, MessageHandler, NCEngine, SendTextMessageParams } from '@nexconn/chat';
 import SendRoundedIcon from '@mui/icons-material/SendRounded';
 
 export default function ChatRoom() {
@@ -10,8 +10,10 @@ export default function ChatRoom() {
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
   const channelRef = useRef(null);
+  const configRef = useRef(null);
   const seenRef = useRef(new Set());
   const retryTimerRef = useRef(null);
+  const syncTimerRef = useRef(null);
   const participant = new URLSearchParams(window.location.search).get('participant') === 'peer' ? 'peer' : 'primary';
 
   useEffect(() => {
@@ -29,8 +31,8 @@ export default function ChatRoom() {
       let data = {};
       try { data = body ? JSON.parse(body) : {}; } catch { throw new Error('Backend returned an invalid chat configuration response.'); }
       if (!response.ok) throw new Error(data.message || `Chat setup failed (HTTP ${response.status}).`);
-      if (!data.appKey || !data.token || !data.userId || !data.groupId) {
-        throw new Error('Chat configuration is incomplete. Check Nexconn App Key, token and Group ID settings.');
+      if (!data.appKey || !data.token || !data.userId || (!data.groupId && !data.targetUserId)) {
+        throw new Error('Chat configuration is incomplete. Check Nexconn App Key, user and peer/group settings.');
       }
       return data;
     };
@@ -40,13 +42,17 @@ export default function ChatRoom() {
         const data = await parseResponse(response);
         if (!active) return;
         setConfig(data);
-        NCEngine.initialize({ appKey: data.appKey });
+        configRef.current = data;
+        NCEngine.initialize({ appKey: data.appKey, logLevel: LogLevel.ERROR });
         NCEngine.addConnectionStatusHandler(connectionHandlerId, new ConnectionStatusHandler({
           onConnectionStatusChanged({ status: connectionStatus, code }) {
             if (!active) return;
             const isConnected = connectionStatus === ConnectionStatus.CONNECTED;
             setConnected(isConnected);
-            if (isConnected) setStatus(`Connected as ${data.userId}`);
+            if (isConnected) {
+              const channelDesc = data.channelType === 'direct' ? ` (Direct with ${data.targetUserId})` : (data.groupId ? ` (Group ${data.groupId})` : '');
+              setStatus(`Connected as ${data.userId}${channelDesc}`);
+            }
             else if (connectionStatus === ConnectionStatus.CONNECTING) setStatus('Connecting to Nexconn…');
             else if (connectionStatus === ConnectionStatus.DISCONNECTED || connectionStatus === ConnectionStatus.SUSPENDED) {
               channelRef.current = null;
@@ -55,7 +61,16 @@ export default function ChatRoom() {
               } else {
                 setStatus(`Chat disconnected${code == null ? '' : ` (code ${code})`}. Reconnecting…`);
                 window.clearTimeout(retryTimerRef.current);
-                retryTimerRef.current = window.setTimeout(() => { if (active) connect(); }, 4000);
+                retryTimerRef.current = window.setTimeout(async () => {
+                  if (!active || !configRef.current?.token) return;
+                  setStatus('Reconnecting to Nexconn…');
+                  try {
+                    const reconnectResult = await NCEngine.connect({ token: configRef.current.token });
+                    if (!reconnectResult?.isOk) throw new Error(`Reconnect failed (code ${reconnectResult?.code ?? 'unknown'}).`);
+                  } catch (error) {
+                    if (active) setStatus(error?.message || 'Reconnect failed. Reload after waiting for the token limit to reset.');
+                  }
+                }, 4000);
               }
             }
           }
@@ -80,9 +95,41 @@ export default function ChatRoom() {
         const result = await NCEngine.connect({ token: data.token });
         if (!active) return;
         if (!result?.isOk) throw new Error(`Nexconn connection failed (code ${result?.code ?? 'unknown'}).`);
-        channelRef.current = new GroupChannel(data.groupId);
+        if (data.channelType === 'direct' || (!data.groupId && data.targetUserId)) {
+          channelRef.current = new DirectChannel(data.targetUserId);
+          setStatus(`Connected as ${data.userId} (Direct with ${data.targetUserId})`);
+        } else {
+          channelRef.current = new GroupChannel(data.groupId);
+          setStatus(`Connected as ${data.userId} (Group ${data.groupId})`);
+          const syncMessages = async () => {
+            try {
+              const query = BaseChannel.createMessagesQuery({
+                channelIdentifier: new GroupChannelIdentifier(data.groupId),
+                isAscending: true,
+                pageSize: 50,
+                startTime: Date.now() - 24 * 60 * 60 * 1000
+              });
+              const page = await query.loadNextPage();
+              const history = page?.isOk ? (page.data?.data || []) : [];
+              if (!active || !Array.isArray(history)) return;
+              setMessages((current) => {
+                const next = [...current];
+                history.forEach((message) => {
+                  const id = message.messageId || `${message.senderUserId}-${message.sentTime}`;
+                  if (seenRef.current.has(id)) return;
+                  seenRef.current.add(id);
+                  const content = message.content?.text || message.content?.content || message.content || '';
+                  next.push({ id, sender: message.senderUserId || 'Team member', text: typeof content === 'string' ? content : JSON.stringify(content), sentTime: message.sentTime || Date.now() });
+                });
+                return next.sort((a, b) => a.sentTime - b.sentTime).slice(-100);
+              });
+            } catch { /* realtime delivery remains primary; history sync is best effort */ }
+          };
+          await syncMessages();
+          window.clearInterval(syncTimerRef.current);
+          syncTimerRef.current = window.setInterval(syncMessages, 3000);
+        }
         setConnected(true);
-        setStatus(`Connected as ${data.userId}`);
       } catch (error) {
         if (active) {
           channelRef.current = null;
@@ -97,7 +144,9 @@ export default function ChatRoom() {
       controller.abort();
       window.clearTimeout(timeout);
       window.clearTimeout(retryTimerRef.current);
+      window.clearInterval(syncTimerRef.current);
       NCEngine.disconnect().catch(() => {});
+      configRef.current = null;
       channelRef.current = null;
       setConnected(false);
     };

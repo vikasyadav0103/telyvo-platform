@@ -38,18 +38,17 @@ public class ChatConfigController {
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
                     "Nexconn App Key and App Secret must be configured on the server. The App Secret must never be sent to the browser.");
         }
-        if (blank(properties.groupId())) {
-            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
-                    "Nexconn Group ID is missing. Create the group, configure NEXCONN_GROUP_ID, then retry chat.");
-        }
         String userId;
         String userName;
+        String targetUserId;
         if ("primary".equalsIgnoreCase(participant)) {
             userId = properties.userId();
             userName = properties.userName();
+            targetUserId = properties.peerUserId();
         } else if ("peer".equalsIgnoreCase(participant)) {
             userId = properties.peerUserId();
             userName = properties.peerUserName();
+            targetUserId = properties.userId();
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Participant must be primary or peer.");
         }
@@ -57,8 +56,15 @@ public class ChatConfigController {
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
                     "The selected Nexconn demo participant is not configured.");
         }
+        boolean hasGroup = !blank(properties.groupId());
+        if (!hasGroup && blank(targetUserId)) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+                    "Either NEXCONN_GROUP_ID or NEXCONN_PEER_USER_ID must be configured.");
+        }
+        String channelType = hasGroup ? "group" : "direct";
+
         return new ChatConfig(properties.appKey(), tokenService.issueToken(userId, userName),
-                userId, properties.groupId(), participant.toLowerCase());
+                userId, properties.groupId(), participant.toLowerCase(), targetUserId, channelType);
     }
 
     private boolean allowIssuance(String clientIp) {
@@ -82,5 +88,10 @@ public class ChatConfigController {
     private boolean blank(String value) { return value == null || value.isBlank(); }
 
     private record RateWindow(long windowStartedAt, int count) {}
-    public record ChatConfig(String appKey, String token, String userId, String groupId, String participant) {}
+    public record ChatConfig(String appKey, String token, String userId, String groupId,
+                             String participant, String targetUserId, String channelType) {
+        public ChatConfig(String appKey, String token, String userId, String groupId, String participant) {
+            this(appKey, token, userId, groupId, participant, null, "group");
+        }
+    }
 }

@@ -61,4 +61,21 @@ class ChatConfigControllerTest {
                 .isEqualTo(429);
         verify(tokenService, times(10)).issueToken("primary-user", "Primary");
     }
+
+    @Test
+    void supportsDirectChatWhenGroupIdIsMissing() {
+        ChatProperties directProps = new ChatProperties("app-key", "app-secret", "https://api.sg-light-api.com",
+                "primary-user", "", "Primary", "peer-user", "Peer", true);
+        NexconnTokenService tokenService = mock(NexconnTokenService.class);
+        when(tokenService.issueToken("primary-user", "Primary")).thenReturn("signed-token");
+        ChatConfigController controller = new ChatConfigController(directProps, tokenService);
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRemoteAddr("192.0.2.13");
+
+        ChatConfigController.ChatConfig config = controller.config("primary", request);
+
+        assertThat(config.channelType()).isEqualTo("direct");
+        assertThat(config.targetUserId()).isEqualTo("peer-user");
+        assertThat(config.token()).isEqualTo("signed-token");
+    }
 }

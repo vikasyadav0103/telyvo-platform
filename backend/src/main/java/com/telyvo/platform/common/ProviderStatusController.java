@@ -24,11 +24,12 @@ public class ProviderStatusController {
 
     @GetMapping("/status")
     public List<ProviderStatus> status() {
+        boolean nexconnConfigured = configured(chat.appKey()) && configured(chat.appSecret())
+                && configured(chat.userId()) && (configured(chat.groupId()) || configured(chat.peerUserId()));
         return List.of(
                 new ProviderStatus("SerpApi", configured(discovery.serpApiKey()), "Live web discovery"),
                 new ProviderStatus("You.com", configured(research.apiKey()), "Cited research synthesis"),
-                new ProviderStatus("Nexconn", configured(chat.appKey()) && configured(chat.appSecret())
-                        && configured(chat.userId()) && configured(chat.groupId()), "Real-time group discussion")
+                new ProviderStatus("Nexconn", nexconnConfigured, "Real-time team discussion")
         );
     }
 
