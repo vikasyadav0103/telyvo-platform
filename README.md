@@ -18,10 +18,10 @@ The three integrations must perform real operations in the final demo. Never fab
 
 - Backend: Java 21, Spring Boot 3, Maven
 - Frontend: React, Vite, Material UI
-- Persistence: PostgreSQL (optional for the five-hour demo if time is constrained)
+- Decision records: browser localStorage with Markdown export (no server-side persistence yet)
 - Integrations: SerpApi, You.com, Nexconn
-- Testing: JUnit 5, Mockito, WireMock; frontend smoke tests where time permits
-- Runtime: Docker Compose when practical
+- Testing: JUnit 5, Mockito and Spring MockRestServiceServer
+- Runtime: Docker Compose with Spring Boot API and Nginx-served React build
 
 ## Repository layout
 
@@ -35,7 +35,7 @@ infra/         Local infrastructure and Docker assets
 
 ## Quick start
 
-The application code is being added in stages. Start by copying `.env.example` to `.env` and filling in credentials locally. **Never commit `.env`, API keys, access tokens, or SDK secrets.**
+The application code is committed on `feature/initial-app-scaffold`. Start by copying `.env.example` to `.env` and filling in credentials locally. **Never commit `.env`, API keys, access tokens, or SDK secrets.**
 
 Provider setup instructions and the five-hour build sequence are in [docs/SETUP.md](docs/SETUP.md). Credit allocation is in [docs/SERPAPI-CREDITS.md](docs/SERPAPI-CREDITS.md).
 
@@ -54,12 +54,29 @@ Provider setup instructions and the five-hour build sequence are in [docs/SETUP.
 - [ ] SerpApi credentials and credit redemption verified
 - [ ] You.com API access verified
 - [ ] Nexconn SDK credentials and minimal chat flow verified
-- [ ] Backend discovery and research endpoints
-- [ ] Frontend end-to-end demo
-- [ ] Negative-path checks and final rehearsal
+- [x] Backend discovery and research endpoints implemented
+- [x] Frontend discovery, research and chat workflow implemented
+- [x] Sanitized Markdown research rendering with clickable citation markers
+- [x] Local decision history with status updates and Markdown export
+- [x] Dockerfiles, Nginx reverse proxy and Docker Compose deployment
+- [x] Per-IP request limits for SerpApi discovery, You.com research and Nexconn demo token issuance
+- [x] Mocked provider tests for discovery, research and Nexconn token issuance
+- [ ] Provider credentials and live connectivity verified
+- [ ] Local Maven tests and frontend production build verified
+- [ ] Production authentication and server-side decision persistence
+- [ ] Distributed rate limiting and trusted-proxy configuration for production
+- [ ] Two-user Nexconn room smoke test and final rehearsal
 
 ## Demo scenario
 
 "Should we choose Java Spring Boot or Go for a new microservices platform?"
 
 TELYVO discovers current resources, generates a cited comparison, then opens a Nexconn discussion for the team to review the evidence.
+
+## Live integrations
+
+- **Discover:** SerpApi Google Search, server-side API key, normalized source cards and five-minute in-memory cache.
+- **Research:** You.com Research API with provider-returned answer and citations.
+- **Discuss:** Nexconn Web Chat SDK group channel for real-time team messages.
+
+See [docs/SETUP.md](docs/SETUP.md) for provider credentials, local setup, Docker deployment and the demo path. All provider credentials are supplied through backend environment variables; the Nexconn App Secret is never exposed to the browser. Decision records remain in browser localStorage and can be exported as Markdown.

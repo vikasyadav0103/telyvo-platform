@@ -1,0 +1,44 @@
+spring:
+  application:
+    name: telyvo-api
+
+server:
+  port: ${SERVER_PORT:8080}
+  shutdown: graceful
+
+telyvo:
+  discovery:
+    serp-api-key: ${SERPAPI_KEY:}
+    base-url: ${SERPAPI_BASE_URL:https://serpapi.com/search}
+    timeout-seconds: ${SERPAPI_TIMEOUT_SECONDS:8}
+    max-results: ${SERPAPI_MAX_RESULTS:8}
+  research:
+    api-key: ${YOU_API_KEY:}
+    base-url: ${YOU_API_BASE_URL:https://api.you.com/v1/research}
+    timeout-seconds: ${YOU_API_TIMEOUT_SECONDS:330}
+    effort: ${YOU_RESEARCH_EFFORT:lite}
+  nexconn:
+    app-key: ${NEXCONN_APP_KEY:}
+    app-secret: ${NEXCONN_APP_SECRET:}
+    api-base-url: ${NEXCONN_API_BASE_URL:https://api.sg-light-api.com}
+    user-id: ${NEXCONN_USER_ID:}
+    user-name: ${NEXCONN_USER_NAME:TELYVO Engineer}
+    peer-user-id: ${NEXCONN_PEER_USER_ID:}
+    peer-user-name: ${NEXCONN_PEER_USER_NAME:TELYVO Teammate}
+    group-id: ${NEXCONN_GROUP_ID:}
+    demo-mode: ${NEXCONN_DEMO_MODE:false}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+logging:
+  level:
+    root: INFO
+    com.telyvo: INFO

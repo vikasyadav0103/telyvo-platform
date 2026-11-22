@@ -1,77 +1,153 @@
-# TELYVO setup checklist
+# TELYVO setup and operations
 
-## 1. Confirm provider access before coding
+## 1. Prerequisites
 
-Do these checks at the start of the hackathon. Do not wait until the integration phase.
-
-### SerpApi
-1. Sign in to SerpApi.
-2. For Mumbai participants, open the event coupon URL supplied by the organizers: https://serpapi.com/beyond9to5mumbai500
-3. Redeem the 500 extra credits in the account.
-4. Confirm the account dashboard reflects the credit grant.
-5. Create/copy the API key and store it only in the local `.env` as `SERPAPI_KEY`.
-6. Make one minimal Google Search API request and record the remaining-credit count before and after.
-
-### You.com
-1. Sign in to the You.com developer platform.
-2. Enable the API/product required by the hackathon.
-3. Create an API key and check its permissions, rate limits and spending controls.
-4. Store it locally as `YOU_API_KEY`; set `YOU_API_BASE_URL` to the documented endpoint for the selected API.
-5. Make one minimal live search/research request and preserve the actual source URLs returned.
-
-### Nexconn
-1. Register/sign in and obtain the Chat SDK credentials.
-2. Read the SDK's current quick-start and authentication instructions.
-3. Confirm whether the SDK requires a server-issued user token, app ID, API key, secret or webhook signature.
-4. Store credentials locally; never put privileged secrets in React/Vite variables.
-5. Test a two-user or two-client message exchange before building the full UI.
-
-**Do not guess provider endpoints, request fields, token formats or SDK method names. Use the current official documentation and the credentials actually issued to the team.**
-
-## 2. Local development
-
-Prerequisites:
+For local development:
 - JDK 21
 - Maven 3.9+
-- Node.js LTS and npm
+- Node.js 22+ and npm
 - Git
-- Docker Desktop (only if using local PostgreSQL/Redis)
 
-Create a local secret file:
+For container deployment:
+- Docker Engine 25+ or Docker Desktop
+- Docker Compose v2
+
+## 2. Configure provider credentials
+
+Copy `.env.example` to `.env` in the repository root and populate the credentials. Never commit `.env`.
+
+### Environment loading for local development
+
+Spring Boot does not load a plain `.env` file automatically.
+
+**macOS / Linux**
+```bash
+set -a
+source .env
+set +a
+```
+Run the backend in the same shell session.
+
+**Windows PowerShell**
+```powershell
+Get-Content .env | Where-Object { $_ -match '^\s*[^#].*=' } | ForEach-Object {
+  $name, $value = $_.Split('=', 2)
+  [Environment]::SetEnvironmentVariable($name.Trim(), $value.Trim(), 'Process')
+}
+```
+Run the backend in the same PowerShell process.
+
+### SerpApi
+
+Set `SERPAPI_KEY`. TELYVO calls the Google Search engine at `https://serpapi.com/search`. Identical query strings are cached in memory for five minutes (up to 200 cache entries) to conserve credits.
+
+### You.com Research API
+
+Set `YOU_API_KEY`. The backend sends `POST https://api.you.com/v1/research` with the `X-API-Key` header and JSON fields `input` and `research_effort`. The default effort is `lite`; supported synchronous efforts are `lite`, `standard`, `deep` and `exhaustive`. `frontier` is intentionally not enabled because it requires background task polling. The configured read timeout defaults to 330 seconds to accommodate the longer synchronous tiers.
+
+The research prompt asks for a conditional recommendation, comparison criteria, trade-offs, assumptions and a decision checklist. Answers are rendered as sanitized Markdown, and citation markers link to the source list returned by You.com. See the official [Research API reference](https://you.com/docs/api-reference/research/v1-research).
+
+### Nexconn Chat SDK
+
+1. Create a Nexconn application and copy its App Key and App Secret.
+2. Set `NEXCONN_APP_KEY` and `NEXCONN_APP_SECRET`. The secret stays on the backend.
+3. Set `NEXCONN_API_BASE_URL` to the regional API host shown in the Nexconn console. The sample default is Singapore.
+4. Configure two distinct stable IDs in `NEXCONN_USER_ID` and `NEXCONN_PEER_USER_ID`.
+5. Create a group channel in Nexconn, add both IDs, and set its ID as `NEXCONN_GROUP_ID`.
+6. Keep `NEXCONN_DEMO_MODE=true` only for a controlled hackathon demo.
+
+The backend issues short-lived browser-use access tokens through Nexconn's signed token API. The endpoint is rate-limited to ten token requests per minute per client IP and returns only the two configured demo identities. Set `NEXCONN_DEMO_MODE=false` to disable this fixed-identity endpoint. Production must replace it with an authenticated session-to-Nexconn identity mapping, membership authorization and distributed rate limiting.
+
+## 3. Run locally
+
+Start the backend after loading environment variables:
 
 ```bash
-cp .env.example .env
+cd backend
+mvn clean test
+mvn spring-boot:run
 ```
 
-Fill the values locally. Verify that `.env` is ignored by Git before the first commit.
+In a second terminal:
 
-## 3. Five-hour implementation sequence
+```bash
+cd frontend
+npm install
+npm run build
+npm run dev
+```
 
-| Time | Deliverable | Acceptance check |
+Open `http://localhost:5173`. The Vite development server proxies `/api` to Spring Boot at `http://localhost:8080`.
+
+## 4. Run with Docker Compose
+
+From the repository root, after creating `.env`:
+
+```bash
+docker compose up --build -d
+docker compose ps
+docker compose logs -f backend frontend
+```
+
+Open `http://localhost:8088` (or the port configured by `APP_PORT`). Nginx serves the React production build and proxies API requests to Spring Boot on the private Compose network. The backend is not published directly to the host.
+
+Stop the stack:
+
+```bash
+docker compose down
+```
+
+The MVP does not require PostgreSQL or Redis. Decision records are stored in browser localStorage and can be exported as Markdown. They are not synchronized between users or devices.
+
+## 5. API endpoints
+
+| Method | Endpoint | Purpose |
 |---|---|---|
-| 0:00–0:20 | Redeem/check credits; verify all three provider credentials | One minimal request/connection per provider |
-| 0:20–0:50 | Spring Boot + React skeleton and health endpoint | Both apps start |
-| 0:50–1:35 | SerpApi discovery service and UI | Live search results displayed |
-| 1:35–2:25 | You.com research service and citations | Live answer with provider-returned citations |
-| 2:25–3:10 | Nexconn minimal group/direct chat | Two clients exchange a message |
-| 3:10–4:10 | Connect the user journey and save/share research | Discover → research → discuss works |
-| 4:10–4:40 | Negative tests and failure states | Key failure scenarios handled |
-| 4:40–5:00 | Rehearse demo and verify usage/credits | Stable 3-minute demo |
+| GET | `/api/v1/health` | Backend health |
+| GET | `/api/v1/integrations/status` | Presence of provider configuration |
+| GET | `/api/v1/discovery?query=...` | SerpApi live search |
+| POST | `/api/v1/research` | You.com cited research; body: `{"query":"..." }` |
+| GET | `/api/v1/chat/config?participant=primary` | Demo Nexconn token bootstrap |
+| GET | `/api/v1/chat/config?participant=peer` | Peer demo Nexconn token bootstrap |
 
-## 4. Minimum negative-path checks
+Provider status indicates whether required environment variables are present; it is not a live connectivity or credential-validity check.
 
-- Empty/oversized query returns a validation error.
-- SerpApi 401/429/5xx/timeout produces a clear error state.
-- You.com 401/429/5xx/timeout is handled without fabricated content.
-- Missing or invalid citations are not displayed as verified sources.
-- Nexconn disconnect/reconnect and unauthorized room access are handled.
-- Duplicate chat events do not appear twice.
-- No API key or privileged SDK secret appears in browser bundles, logs or Git history.
+## 6. Verification and demo rehearsal
 
-## 5. Definition of done
+### Automated checks
 
-The MVP is complete only when a judge can:
-1. Search a technology topic and see live SerpApi results.
-2. Generate a cited research response through You.com.
-3. Share the research context and exchange a real-time message through Nexconn.
-4. Observe a sensible error state when an integration is unavailable.
+```bash
+cd backend
+mvn clean test
+
+cd ../frontend
+npm install
+npm run build
+```
+
+### Live workflow
+
+1. Enter a question such as “Should we choose Java Spring Boot or Go for microservices?”
+2. Discover resources and open the original provider URLs.
+3. Run You.com Research. Confirm Markdown formatting and citation markers link to the returned source list.
+4. Save a decision record with status and team rationale.
+5. Export the record as Markdown and confirm the evidence and sources are included.
+6. Open the peer chat session in another browser profile/tab and test two-user messaging.
+7. Test missing credentials and rate-limit paths without repeatedly spending live API credits.
+
+### Known MVP boundaries
+
+- Decision records are browser-local. Server-side persistence, team-wide history and audit trails are not implemented.
+- The Nexconn fixed-identity endpoint is demo-only. Disable it outside the controlled demo.
+- The Nexconn group must already exist and include both configured users.
+- Discovery is limited to 20 requests per minute per client IP; You.com Research is limited to 3 requests per minute per client IP. Limits are in-memory and reset on backend restart. Behind the bundled Nginx proxy, requests share the proxy's backend-visible IP, which is appropriate for the small demo but must be replaced with a trusted-proxy-aware distributed limiter in production.
+- Provider calls are live; missing credentials or provider outages produce errors rather than mock results.
+- Maven tests and frontend builds must be executed in a local environment before declaring a release. No CI workflow is used as a substitute for local validation.
+
+## 7. Security checklist
+
+- Never commit `.env`, API keys, Nexconn App Secret or access tokens.
+- Keep provider credentials on the backend.
+- Do not expose the demo chat bootstrap endpoint publicly; set `NEXCONN_DEMO_MODE=false` outside the hackathon environment.
+- Terminate TLS at a trusted reverse proxy before exposing the application to the internet.
+- Configure allowed origins, authentication, authorization, rate limiting and centralized secret management before production.
