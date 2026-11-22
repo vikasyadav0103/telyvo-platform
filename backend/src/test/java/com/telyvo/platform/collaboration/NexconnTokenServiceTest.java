@@ -31,7 +31,7 @@ class NexconnTokenServiceTest {
 
         NexconnTokenService service = new NexconnTokenService(
                 new ChatProperties("demo-app-key", "demo-app-secret", "https://api.sg-light-api.com",
-                        "demo-user", "team-room", "TELYVO Engineer", "peer-user", "TELYVO Teammate"), builder);
+                        "demo-user", "team-room", "TELYVO Engineer", "peer-user", "TELYVO Teammate", true), builder);
 
         assertThat(service.issueToken("demo-user", "TELYVO Engineer")).isEqualTo("issued-demo-token");
         server.verify();
