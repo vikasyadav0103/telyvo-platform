@@ -12,7 +12,7 @@ Copy `.env.example` to `.env` and populate the provider values. Never commit `.e
 Set `SERPAPI_KEY`. The backend calls `https://serpapi.com/search` using the Google engine. Results are cached for five minutes to reduce duplicate calls.
 
 ### You.com Research API
-Set `YOU_API_KEY`. The backend uses `POST https://api.you.com/v1/research`, sends the key in the `X-API-Key` header and requests `research_effort=lite` by default. Increase effort only when latency and credit budget permit. The response answer and provider-returned source URLs are normalized for the UI.
+Set `YOU_API_KEY`. The backend uses `POST https://api.you.com/v1/research`, sends the key in the `X-API-Key` header and requests `research_effort=lite` by default. The request includes a decision-brief instruction asking for a conditional recommendation, comparison criteria, trade-offs, assumptions and a decision checklist. Increase effort only when latency and credit budget permit. The response answer and provider-returned source URLs are normalized for the UI. The implementation follows the official Research API reference: https://you.com/docs/api-reference/research/v1-research.
 
 ### Nexconn Chat SDK
 1. Create a Nexconn application in the Developer Console.
@@ -45,6 +45,37 @@ Open the Vite URL, normally http://localhost:5173.
 - `GET /api/v1/discovery?query=...` — SerpApi live search
 - `POST /api/v1/research` — You.com cited research; JSON body `{"query":"..." }`
 - `GET /api/v1/chat/config` — browser-safe Nexconn SDK bootstrap config
+
+## Verification checklist
+
+Run these checks before the live demo; they require valid credentials and a configured Nexconn group.
+
+### Backend tests
+```bash
+cd backend
+mvn test
+```
+
+### Frontend production build
+```bash
+cd frontend
+npm ci
+npm run build
+```
+
+### Live provider smoke tests
+1. Start Spring Boot and Vite using the commands above.
+2. Open the workspace and confirm provider pills reflect server-side credential configuration (this is configuration presence, not a successful live health check).
+3. Search a narrow technical question. Confirm results open the original SerpApi URLs.
+4. Run You.com research. Confirm the answer and returned sources render; test a deliberately invalid API key and confirm the UI shows an error without fabricated output.
+5. Open the peer session in a second browser profile/tab. Confirm both users join the pre-created Nexconn group and messages appear in both sessions.
+6. Remove one provider key temporarily and confirm its endpoint returns a clear not-configured response.
+7. Test provider rate limits or use mocked tests; do not burn live credits just to force a 429 response.
+
+### Known demo constraints
+- The Nexconn chat bootstrap endpoint issues tokens for two fixed demo identities selected by a query parameter. This is for a controlled demo only; do not expose it as a production identity system. Production must authenticate the caller, derive the Nexconn user ID from the session, authorize room membership, and rate-limit token issuance.
+- Provider status pills indicate whether required environment variables are present. They do not prove that the external provider is reachable or that the credentials are valid.
+- No automated deployment or build workflow is required to continue development. Build and test locally with the commands above.
 
 ## Demo path
 1. Enter a technology decision such as “Spring Boot vs Go for microservices”.
