@@ -21,7 +21,7 @@ function safeFileName(value) {
 }
 
 function toMarkdown(record) {
-  const sources = (record.sources || []).map((source, index) => `${index + 1}. [${source.title || 'Source'}](${source.url})`).join('\n');
+  const sources = (record.sources || []).map((source, index) => `[${source.sourceIndex ?? index + 1}] [${source.title || 'Source'}](${source.url})`).join('\n');
   return [
     `# ${record.title}`,
     '',
@@ -74,7 +74,7 @@ export default function DecisionLog({ query, research }) {
       status,
       rationale: rationale.trim(),
       answer: research.answer,
-      sources: (research.sources || []).map(({ title: sourceTitle, url }) => ({ title: sourceTitle, url })),
+      sources: (research.sources || []).map(({ sourceIndex, title: sourceTitle, url }) => ({ sourceIndex, title: sourceTitle, url })),
       createdAt: new Date().toISOString()
     };
     setRecords((current) => [record, ...current].slice(0, 50));
