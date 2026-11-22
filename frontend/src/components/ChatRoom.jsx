@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { BaseChannel, ConnectionStatus, ConnectionStatusHandler, DirectChannel, DirectChannelIdentifier, GroupChannel, GroupChannelIdentifier, LogLevel, MessageHandler, NCEngine, SendTextMessageParams } from '@nexconn/chat';
 import SendRoundedIcon from '@mui/icons-material/SendRounded';
+import { apiUrl } from '../api';
 
 export default function ChatRoom() {
   const [config, setConfig] = useState(null);
@@ -41,7 +42,7 @@ export default function ChatRoom() {
     };
     async function connect() {
       try {
-        const response = await fetch('/api/v1/chat/config?participant=' + encodeURIComponent(participant), { signal: controller.signal });
+        const response = await fetch(apiUrl('/api/v1/chat/config?participant=' + encodeURIComponent(participant)), { signal: controller.signal });
         const data = await parseResponse(response);
         if (!active) return;
         setConfig(data);

@@ -12,6 +12,7 @@ import DecisionLog from './components/DecisionLog';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeSanitize from 'rehype-sanitize';
+import { apiUrl } from './api';
 
 function linkResearchCitations(markdown = '') {
   return markdown.replace(/\[\[([\d\s,]+)\]\]/g, (_, numbers) => numbers.split(',').map((number) => number.trim()).filter(Boolean).map((number) => `[${number}](#research-source-${number})`).join(', '));
@@ -36,11 +37,11 @@ export default function App() {
   const [researchError, setResearchError] = useState('');
 
   useEffect(() => {
-    fetch('/api/v1/health')
+    fetch(apiUrl('/api/v1/health'))
       .then((response) => { if (!response.ok) throw new Error(); return response.json(); })
       .then((data) => setApiStatus(data.status === 'UP' ? 'API online' : 'API unavailable'))
       .catch(() => setApiStatus('API offline'));
-    fetch('/api/v1/integrations/status')
+    fetch(apiUrl('/api/v1/integrations/status'))
       .then((response) => { if (!response.ok) throw new Error(); return response.json(); })
       .then((data) => setProviders(data))
       .catch(() => setProviders([]));
@@ -60,7 +61,7 @@ export default function App() {
     if (!value || loading) return;
     setLoading(true); setError(''); setResults([]); setResearch(null); setResearchError('');
     try {
-      const response = await fetch('/api/v1/discovery?query=' + encodeURIComponent(value));
+      const response = await fetch(apiUrl('/api/v1/discovery?query=' + encodeURIComponent(value)));
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || 'Discovery request failed.');
       setResults(data.results || []);
@@ -74,7 +75,7 @@ export default function App() {
     if (!value || researching) return;
     setResearching(true); setResearchError(''); setResearch(null);
     try {
-      const response = await fetch('/api/v1/research', {
+      const response = await fetch(apiUrl('/api/v1/research'), {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: value })
       });

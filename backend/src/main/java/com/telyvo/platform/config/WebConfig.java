@@ -1,6 +1,7 @@
 package com.telyvo.platform.config;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -9,6 +10,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebConfig implements WebMvcConfigurer {
     private final ProviderRateLimitInterceptor rateLimitInterceptor;
 
+    @Value("${telyvo.cors.allowed-origins:http://localhost:5173}")
+    private String allowedOrigins;
+
     public WebConfig(ProviderRateLimitInterceptor rateLimitInterceptor) {
         this.rateLimitInterceptor = rateLimitInterceptor;
     }
@@ -16,7 +20,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
-                .allowedOrigins("http://localhost:5173")
+                .allowedOrigins(allowedOrigins.split(","))
                 .allowedMethods("GET", "POST", "OPTIONS")
                 .allowedHeaders("Content-Type", "Authorization");
     }

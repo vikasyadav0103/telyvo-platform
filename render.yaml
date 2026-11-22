@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: telyvo
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: NEXCONN_APP_KEY
+        sync: false
+      - key: NEXCONN_APP_SECRET
+        sync: false
+      - key: NEXCONN_API_BASE_URL
+        value: https://api.sg-light-api.com
+      - key: NEXCONN_USER_ID
+        sync: false
+      - key: NEXCONN_USER_NAME
+        value: TELYVO Engineer
+      - key: NEXCONN_PEER_USER_ID
+        sync: false
+      - key: NEXCONN_PEER_USER_NAME
+        value: TELYVO Teammate
+      - key: NEXCONN_GROUP_ID
+        sync: false
+      - key: NEXCONN_DEMO_MODE
+        value: "true"
+      - key: SERPAPI_KEY
+        sync: false
+      - key: YOU_API_KEY
+        sync: false

@@ -1,0 +1,10 @@
+.git
+.env
+.codex
+.agents
+**/node_modules
+**/dist
+**/target
+**/*.log
+frontend/.vite
+backend/.mvn
