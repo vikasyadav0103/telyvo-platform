@@ -1,3 +1,5 @@
+name: telyvo-platform
+
 services:
   backend:
     build:
@@ -31,6 +33,7 @@ services:
       start_period: 40s
       retries: 3
     restart: unless-stopped
+    init: true
     networks:
       - telyvo
 
@@ -44,6 +47,7 @@ services:
     ports:
       - "${APP_PORT:-8088}:80"
     restart: unless-stopped
+    init: true
     networks:
       - telyvo
 
