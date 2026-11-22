@@ -96,7 +96,7 @@ export default function App() {
         <div className="sidebar-bottom"><div className="api-indicator"><span className={apiStatus === 'API online' ? 'status-dot online' : 'status-dot'} />{apiStatus}</div><div className="version-label">MVP BUILD · 0.3.0</div></div>
       </aside>
       <section className="main-panel">
-        <header className="topbar"><div className="breadcrumb">Workspace <span>/</span> <strong>Technology discovery</strong></div><div className="topbar-right"><span className="live-pill"><span /> MVP workspace</span><div className="provider-pills">{providers.map((provider) => <span className={provider.configured ? "provider-pill configured" : "provider-pill"} key={provider.provider}>{provider.provider}</span>)}</div></div></header>
+        <header className="topbar"><div className="breadcrumb">Workspace <span>/</span> <strong>Technology discovery</strong></div><div className="topbar-right"><span className="live-pill"><span /> MVP workspace</span><div className="provider-pills">{providers.map((provider) => <span className={provider.configured ? "provider-pill configured" : "provider-pill"} key={provider.provider} title="Credential presence only; not a live provider health check">{provider.provider} · {provider.configured ? "configured" : "missing key"}</span>)}</div></div></header>
         <div className="content">
           <section className="hero" id="discover">
             <div className="eyebrow"><span className="eyebrow-line" /> ENGINEERING DECISIONS, GROUNDED IN EVIDENCE</div>
