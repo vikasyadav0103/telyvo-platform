@@ -23,6 +23,8 @@ telyvo:
     api-base-url: ${NEXCONN_API_BASE_URL:https://api.sg-light-api.com}
     user-id: ${NEXCONN_USER_ID:}
     user-name: ${NEXCONN_USER_NAME:TELYVO Engineer}
+    peer-user-id: ${NEXCONN_PEER_USER_ID:}
+    peer-user-name: ${NEXCONN_PEER_USER_NAME:TELYVO Teammate}
     group-id: ${NEXCONN_GROUP_ID:}
 
 management:
