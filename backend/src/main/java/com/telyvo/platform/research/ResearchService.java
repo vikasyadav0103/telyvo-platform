@@ -62,14 +62,16 @@ public class ResearchService {
             List<ResearchSource> sources = new ArrayList<>();
             JsonNode sourceNodes = output.path("sources");
             if (sourceNodes.isArray()) {
+                int sourceIndex = 0;
                 for (JsonNode source : sourceNodes) {
+                    sourceIndex++;
                     String url = source.path("url").asText("");
                     String title = source.path("title").asText("Untitled source");
                     if (!isHttpUrl(url)) continue;
                     List<String> snippets = new ArrayList<>();
                     JsonNode snippetNodes = source.path("snippets");
                     if (snippetNodes.isArray()) snippetNodes.forEach(s -> snippets.add(s.asText()));
-                    sources.add(new ResearchSource(title, url, List.copyOf(snippets)));
+                    sources.add(new ResearchSource(sourceIndex, title, url, List.copyOf(snippets)));
                 }
             }
             return new ResearchResponse(query, answer, List.copyOf(sources), Instant.now());
