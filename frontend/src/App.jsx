@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
 import ForumRoundedIcon from '@mui/icons-material/ForumRounded';
+import FactCheckRoundedIcon from '@mui/icons-material/FactCheckRounded';
 import TravelExploreRoundedIcon from '@mui/icons-material/TravelExploreRounded';
 import TerminalRoundedIcon from '@mui/icons-material/TerminalRounded';
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
@@ -19,7 +20,8 @@ function linkResearchCitations(markdown = '') {
 const stages = [
   { number: '01', title: 'Discover', description: 'Find current engineering resources.', icon: <TravelExploreRoundedIcon />, tag: 'SERPAPI' },
   { number: '02', title: 'Research', description: 'Compare options with cited evidence.', icon: <AutoAwesomeRoundedIcon />, tag: 'YOU.COM' },
-  { number: '03', title: 'Discuss', description: 'Bring the team into the decision.', icon: <ForumRoundedIcon />, tag: 'NEXCONN' }
+  { number: '03', title: 'Decide', description: 'Record the outcome, status and rationale.', icon: <FactCheckRoundedIcon />, tag: 'DECISION LOG' },
+  { number: '04', title: 'Discuss', description: 'Bring the team into the decision.', icon: <ForumRoundedIcon />, tag: 'NEXCONN' }
 ];
 
 export default function App() {
