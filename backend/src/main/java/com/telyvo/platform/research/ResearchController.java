@@ -1,5 +1,6 @@
 package com.telyvo.platform.research;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import org.springframework.validation.annotation.Validated;
@@ -13,7 +14,7 @@ public class ResearchController {
     public ResearchController(ResearchService service) { this.service = service; }
 
     @PostMapping
-    public ResearchResponse research(@RequestBody ResearchRequest request) {
+    public ResearchResponse research(@Valid @RequestBody ResearchRequest request) {
         return service.research(request.query().trim());
     }
 
