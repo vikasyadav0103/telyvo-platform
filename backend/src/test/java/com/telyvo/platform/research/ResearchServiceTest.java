@@ -30,8 +30,8 @@ class ResearchServiceTest {
                 .andRespond(withSuccess("""
                         {"output":{"content":"Spring Boot and Go have different trade-offs [[1]].",
                           "sources":[
-                            {"title":"Spring","url":"https://spring.io","snippets":["Official docs"]},
-                            {"title":"Unsafe","url":"javascript:alert(1)","snippets":["ignore"]}
+                            {"title":"Unsafe","url":"javascript:alert(1)","snippets":["ignore"]},
+                            {"title":"Spring","url":"https://spring.io","snippets":["Official docs"]}
                           ]}}
                         """, MediaType.APPLICATION_JSON));
 
@@ -43,6 +43,7 @@ class ResearchServiceTest {
         assertThat(response.answer()).contains("different trade-offs");
         assertThat(response.sources()).hasSize(1);
         assertThat(response.sources().getFirst().url()).isEqualTo("https://spring.io");
+        assertThat(response.sources().getFirst().sourceIndex()).isEqualTo(2);
         server.verify();
     }
 
