@@ -27,7 +27,7 @@ public class ProviderStatusController {
         return List.of(
                 new ProviderStatus("SerpApi", configured(discovery.serpApiKey()), "Live web discovery"),
                 new ProviderStatus("You.com", configured(research.apiKey()), "Cited research synthesis"),
-                new ProviderStatus("Nexconn", configured(chat.appKey()) && configured(chat.userToken())
+                new ProviderStatus("Nexconn", configured(chat.appKey()) && configured(chat.appSecret())
                         && configured(chat.userId()) && configured(chat.groupId()), "Real-time group discussion")
         );
     }
