@@ -140,6 +140,7 @@ npm run build
 - Decision records are browser-local. Server-side persistence, team-wide history and audit trails are not implemented.
 - The Nexconn fixed-identity endpoint is demo-only. Disable it outside the controlled demo.
 - The Nexconn group must already exist and include both configured users.
+- Discovery is limited to 20 requests per minute per client IP; You.com Research is limited to 3 requests per minute per client IP. Limits are in-memory and reset on backend restart. Behind the bundled Nginx proxy, requests share the proxy's backend-visible IP, which is appropriate for the small demo but must be replaced with a trusted-proxy-aware distributed limiter in production.
 - Provider calls are live; missing credentials or provider outages produce errors rather than mock results.
 - Maven tests and frontend builds must be executed in a local environment before declaring a release. No CI workflow is used as a substitute for local validation.
 
