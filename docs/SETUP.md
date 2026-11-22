@@ -1,35 +1,60 @@
-# TELYVO setup checklist
+# TELYVO provider setup
 
 ## Prerequisites
 - JDK 21 and Maven 3.9+
 - Node.js 22+ and npm
 - Git
 
-## Local configuration
-1. Copy `.env.example` to `.env`.
-2. Set `SERPAPI_KEY` using the key from your SerpApi account.
-3. Never commit `.env` or place provider secrets in Vite variables.
-4. From `backend`, run `mvn spring-boot:run`.
-5. From `frontend`, run `npm install && npm run dev`.
-6. Open the Vite URL (normally http://localhost:5173).
+## Configure secrets
+Copy `.env.example` to `.env` and populate the provider values. Never commit `.env`.
 
-## Implemented: live discovery
-The React search form calls `GET /api/v1/discovery?query=...`. Spring Boot calls the SerpApi Google Search endpoint server-side and returns normalized title, URL, snippet, source and publication date fields.
+### SerpApi
+Set `SERPAPI_KEY`. The backend calls `https://serpapi.com/search` using the Google engine. Results are cached for five minutes to reduce duplicate calls.
 
-- Search query length: 1–240 characters.
-- Result limit: configurable, default 8 (maximum 20).
-- Provider timeout: configurable, default 8 seconds for connect and read.
-- Identical normalized queries are cached in memory for five minutes (up to 200 entries).
-- Only HTTP/HTTPS result links are exposed to the browser.
-- Missing credentials return `DISCOVERY_NOT_CONFIGURED`; provider failures return a stable error response.
-- Search results are provider-returned web references, not independently fact-checked claims.
+### You.com Research API
+Set `YOU_API_KEY`. The backend uses `POST https://api.you.com/v1/research`, sends the key in the `X-API-Key` header and requests `research_effort=lite` by default. Increase effort only when latency and credit budget permit. The response answer and provider-returned source URLs are normalized for the UI.
 
-## Remaining integrations
-You.com and Nexconn are not yet connected. Implement them only against the current official API/SDK contract and credentials actually issued to the team. Do not invent endpoints, citation structures or token formats.
+### Nexconn Chat SDK
+1. Create a Nexconn application in the Developer Console.
+2. Use the development App Key.
+3. Obtain a user access token through Nexconn's documented server-side flow. For this MVP, supply the resulting demo user's token as `NEXCONN_USER_TOKEN` in the backend environment.
+4. Set `NEXCONN_USER_ID` to the exact user ID bound to that token.
+5. Create a group channel using Nexconn's console or SDK and add this user (and the second demo user); set its ID as `NEXCONN_GROUP_ID`.
+6. Set `NEXCONN_APP_KEY` to the same App Key used to create the token.
+7. Never put the App Secret in React, Vite variables or the browser bundle.
 
-## Smoke test
-With the backend running and a valid `SERPAPI_KEY` configured:
+The backend exposes `GET /api/v1/chat/config` to return the browser-safe App Key, user access token, user ID and group ID at runtime. This endpoint is a demo bootstrap endpoint, not a production identity system. In production, protect it with application authentication and mint short-lived user tokens through Nexconn's signed server API.
+
+## Run locally
+Terminal 1:
 ```bash
-curl "http://localhost:8080/api/v1/discovery?query=Spring%20Boot%20vs%20Go"
+cd backend
+mvn spring-boot:run
 ```
-Without a key, expect HTTP 503 with code `DISCOVERY_NOT_CONFIGURED`. No live provider call is required for CI tests.
+
+Terminal 2:
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open the Vite URL, normally http://localhost:5173.
+
+## API endpoints
+- `GET /api/v1/health` — backend health
+- `GET /api/v1/discovery?query=...` — SerpApi live search
+- `POST /api/v1/research` — You.com cited research; JSON body `{"query":"..." }`
+- `GET /api/v1/chat/config` — browser-safe Nexconn SDK bootstrap config
+
+## Demo path
+1. Enter a technology decision such as “Spring Boot vs Go for microservices”.
+2. Discover current web resources through SerpApi.
+3. Synthesize the decision with You.com Research and inspect its returned sources.
+4. Connect to the configured Nexconn group and exchange messages with a second member.
+
+## Important constraints
+- No provider credentials are hardcoded or exposed in frontend build-time variables.
+- Research and discovery show provider-returned sources; TELYVO does not claim independent fact verification.
+- Nexconn group must exist and include the connected user. A second participant needs their own valid token/user identity.
+- External API calls require valid provider credentials and network access; they are not simulated.
