@@ -34,9 +34,13 @@ public class ChatConfigController {
             throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS,
                     "Chat token request limit reached. Wait one minute before reconnecting.");
         }
-        if (blank(properties.appKey()) || blank(properties.groupId())) {
+        if (blank(properties.appKey()) || blank(properties.appSecret())) {
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
-                    "Nexconn App Key and Group ID must be configured on the server.");
+                    "Nexconn App Key and App Secret must be configured on the server. The App Secret must never be sent to the browser.");
+        }
+        if (blank(properties.groupId())) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+                    "Nexconn Group ID is missing. Create the group, configure NEXCONN_GROUP_ID, then retry chat.");
         }
         String userId;
         String userName;
