@@ -59,10 +59,12 @@ Provider setup instructions and the five-hour build sequence are in [docs/SETUP.
 - [x] Sanitized Markdown research rendering with clickable citation markers
 - [x] Local decision history with status updates and Markdown export
 - [x] Dockerfiles, Nginx reverse proxy and Docker Compose deployment
+- [x] Per-IP request limits for SerpApi discovery, You.com research and Nexconn demo token issuance
 - [x] Mocked provider tests for discovery, research and Nexconn token issuance
 - [ ] Provider credentials and live connectivity verified
 - [ ] Local Maven tests and frontend production build verified
 - [ ] Production authentication and server-side decision persistence
+- [ ] Distributed rate limiting and trusted-proxy configuration for production
 - [ ] Two-user Nexconn room smoke test and final rehearsal
 
 ## Demo scenario
