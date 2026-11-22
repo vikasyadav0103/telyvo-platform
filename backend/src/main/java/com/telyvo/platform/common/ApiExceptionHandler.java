@@ -1,6 +1,7 @@
 package com.telyvo.platform.common;
 
 import com.telyvo.platform.discovery.DiscoveryException;
+import com.telyvo.platform.collaboration.ChatIntegrationException;
 import com.telyvo.platform.research.ResearchException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,12 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(ResearchException.class)
     ResponseEntity<ApiError> handleResearch(ResearchException ex) {
+        return ResponseEntity.status(ex.status())
+                .body(new ApiError(ex.code(), ex.getMessage(), Instant.now()));
+    }
+
+    @ExceptionHandler(ChatIntegrationException.class)
+    ResponseEntity<ApiError> handleChat(ChatIntegrationException ex) {
         return ResponseEntity.status(ex.status())
                 .body(new ApiError(ex.code(), ex.getMessage(), Instant.now()));
     }
