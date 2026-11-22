@@ -19,8 +19,10 @@ telyvo:
     effort: ${YOU_RESEARCH_EFFORT:lite}
   nexconn:
     app-key: ${NEXCONN_APP_KEY:}
-    user-token: ${NEXCONN_USER_TOKEN:}
+    app-secret: ${NEXCONN_APP_SECRET:}
+    api-base-url: ${NEXCONN_API_BASE_URL:https://api.sg-light-api.com}
     user-id: ${NEXCONN_USER_ID:}
+    user-name: ${NEXCONN_USER_NAME:TELYVO Engineer}
     group-id: ${NEXCONN_GROUP_ID:}
 
 management:
