@@ -2,6 +2,7 @@ package com.telyvo.platform.collaboration;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -17,10 +18,11 @@ import java.util.UUID;
 @Service
 public class NexconnTokenService {
     private final ChatProperties properties;
-    private final RestClient client = RestClient.create();
+    private final RestClient client;
 
-    public NexconnTokenService(ChatProperties properties) {
+    public NexconnTokenService(ChatProperties properties, @Qualifier("nexconnRestClientBuilder") RestClient.Builder builder) {
         this.properties = properties;
+        this.client = builder.build();
     }
 
     public String issueToken() {
