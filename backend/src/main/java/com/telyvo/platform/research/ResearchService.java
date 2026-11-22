@@ -2,6 +2,7 @@ package com.telyvo.platform.research;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -17,7 +18,7 @@ public class ResearchService {
     private final RestClient client;
     private final ResearchProperties properties;
 
-    public ResearchService(RestClient.Builder builder, ResearchProperties properties) {
+    public ResearchService(@Qualifier("researchRestClientBuilder") RestClient.Builder builder, ResearchProperties properties) {
         this.client = builder.build();
         this.properties = properties;
     }
