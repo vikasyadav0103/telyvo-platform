@@ -8,6 +8,7 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,23 +30,15 @@ public class DiscoveryService {
                     "Search is not configured. Add SERPAPI_KEY to the backend environment.");
         }
 
-        String uri = UriComponentsBuilder.fromUriString(properties.baseUrl())
-                .queryParam("engine", "google")
-                .queryParam("q", query)
+        URI uri = UriComponentsBuilder.fromUriString(properties.baseUrl())
+                .queryParam("engine", "google").queryParam("q", query)
                 .queryParam("api_key", properties.serpApiKey())
-                .queryParam("num", properties.maxResults())
-                .build().encode().toUriString();
+                .queryParam("num", properties.maxResults()).build().encode().toUri();
 
         try {
             JsonNode payload = restClient.get().uri(uri).retrieve().body(JsonNode.class);
-            if (payload == null) {
-                throw new DiscoveryException(HttpStatus.BAD_GATEWAY, "EMPTY_PROVIDER_RESPONSE",
-                        "Search provider returned an empty response.");
-            }
-            if (payload.hasNonNull("error")) {
-                throw new DiscoveryException(HttpStatus.BAD_GATEWAY, "PROVIDER_ERROR",
-                        "Search provider could not complete the request.");
-            }
+            if (payload == null) throw providerError("EMPTY_PROVIDER_RESPONSE", "Search provider returned an empty response.");
+            if (payload.hasNonNull("error")) throw providerError("PROVIDER_ERROR", "Search provider could not complete the request.");
 
             List<DiscoveryResult> results = new ArrayList<>();
             JsonNode organic = payload.path("organic_results");
@@ -53,7 +46,7 @@ public class DiscoveryService {
                 for (JsonNode item : organic) {
                     String link = text(item, "link");
                     String title = text(item, "title");
-                    if (link.isBlank() || title.isBlank()) continue;
+                    if (title.isBlank() || !isHttpUrl(link)) continue;
                     results.add(new DiscoveryResult(title, link, text(item, "snippet"),
                             text(item, "source"), text(item, "date")));
                     if (results.size() >= properties.maxResults()) break;
@@ -66,6 +59,18 @@ public class DiscoveryService {
             throw new DiscoveryException(HttpStatus.BAD_GATEWAY, "DISCOVERY_PROVIDER_UNAVAILABLE",
                     "Search provider is temporarily unavailable. Please try again.");
         }
+    }
+
+    private DiscoveryException providerError(String code, String message) {
+        return new DiscoveryException(HttpStatus.BAD_GATEWAY, code, message);
+    }
+
+    private boolean isHttpUrl(String value) {
+        try {
+            URI uri = URI.create(value);
+            return ("https".equalsIgnoreCase(uri.getScheme()) || "http".equalsIgnoreCase(uri.getScheme()))
+                    && uri.getHost() != null;
+        } catch (IllegalArgumentException ex) { return false; }
     }
 
     private String text(JsonNode node, String field) {
