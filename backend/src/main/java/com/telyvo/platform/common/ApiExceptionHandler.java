@@ -5,6 +5,7 @@ import com.telyvo.platform.research.ResearchException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -26,9 +27,9 @@ public class ApiExceptionHandler {
                 .body(new ApiError(ex.code(), ex.getMessage(), Instant.now()));
     }
 
-    @ExceptionHandler(ConstraintViolationException.class)
-    ResponseEntity<ApiError> handleValidation(ConstraintViolationException ex) {
+    @ExceptionHandler({ConstraintViolationException.class, MethodArgumentNotValidException.class})
+    ResponseEntity<ApiError> handleValidation(Exception ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new ApiError("INVALID_REQUEST", "Query must contain 1–240 characters.", Instant.now()));
+                .body(new ApiError("INVALID_REQUEST", "Request validation failed. Check required fields and length limits.", Instant.now()));
     }
 }
