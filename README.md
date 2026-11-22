@@ -18,10 +18,10 @@ The three integrations must perform real operations in the final demo. Never fab
 
 - Backend: Java 21, Spring Boot 3, Maven
 - Frontend: React, Vite, Material UI
-- Persistence: PostgreSQL (optional for the five-hour demo if time is constrained)
+- Decision records: browser localStorage with Markdown export (no server-side persistence yet)
 - Integrations: SerpApi, You.com, Nexconn
 - Testing: JUnit 5, Mockito, WireMock; frontend smoke tests where time permits
-- Runtime: Docker Compose when practical
+- Runtime: Docker Compose with Spring Boot API and Nginx-served React build
 
 ## Repository layout
 
@@ -56,9 +56,13 @@ Provider setup instructions and the five-hour build sequence are in [docs/SETUP.
 - [ ] Nexconn SDK credentials and minimal chat flow verified
 - [x] Backend discovery and research endpoints implemented
 - [x] Frontend discovery, research and chat workflow implemented
+- [x] Sanitized Markdown research rendering with clickable citation markers
+- [x] Local decision history with status updates and Markdown export
+- [x] Dockerfiles, Nginx reverse proxy and Docker Compose deployment
 - [x] Mocked provider tests for discovery, research and Nexconn token issuance
 - [ ] Provider credentials and live connectivity verified
 - [ ] Local Maven tests and frontend production build verified
+- [ ] Production authentication and server-side decision persistence
 - [ ] Two-user Nexconn room smoke test and final rehearsal
 
 ## Demo scenario
@@ -73,4 +77,4 @@ TELYVO discovers current resources, generates a cited comparison, then opens a N
 - **Research:** You.com Research API with provider-returned answer and citations.
 - **Discuss:** Nexconn Web Chat SDK group channel for real-time team messages.
 
-See [docs/SETUP.md](docs/SETUP.md) for provider credentials, local setup and the demo path. All provider credentials are supplied through backend environment variables; the Nexconn App Secret is never exposed to the browser.
+See [docs/SETUP.md](docs/SETUP.md) for provider credentials, local setup, Docker deployment and the demo path. All provider credentials are supplied through backend environment variables; the Nexconn App Secret is never exposed to the browser. Decision records remain in browser localStorage and can be exported as Markdown.
